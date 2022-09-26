@@ -1,90 +1,171 @@
 import React from 'react';
+// import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FallingLines } from 'react-loader-spinner';
 import { Box } from './Box';
-import { nanoid } from 'nanoid';
-import { Report } from 'notiflix/build/notiflix-report-aio';
 import { Container } from './App.styled';
-import SectionTitle from './SectionTitle/SectionTitle';
-import ContactForm from './ContactForm/ContactForm';
-import ContactList from './ContactList/ContactList';
-import Filter from './Filter/Filter';
-import Message from './Message/Message';
-import baseContacts from '../db/contacts.json';
+import fetchImages from '../services/ImgAPI';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
+// import Loader from './Loader/Loader';
 
-export class App extends React.Component {
+export default class App extends React.Component {
   state = {
-    contacts: baseContacts,
-    filter: '',
-  };
-  // Удаляем контакт
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
-  // Добавляем контакт
-  addContact = ({ name, number }) => {
-    const { contacts } = this.state;
-    const newContact = { id: nanoid(), name, number };
-
-    contacts.some(contact => contact.name === name)
-      ? Report.info(
-          `${name}`,
-          'This user is already in the contact list.',
-          'OK'
-        )
-      : this.setState(({ contacts }) => ({
-          contacts: [newContact, ...contacts],
-        }));
+    query: '',
+    page: 1,
+    imagesOnPage: 0,
+    totalImages: 0,
+    isLoading: false,
+    showModal: false,
+    images: null,
+    error: null,
+    currentImageUrl: null,
+    currentImageDescription: null,
   };
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
-  };
-  // Фильтр контактов
-  filterContacts = () => {
-    const { filter, contacts } = this.state;
-
-    const normalizedFilter = filter.toLowerCase();
-
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
-
-  // Запись в LocalStorage контакты
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-  // Достаем из LocalStorage контакты и записываем в State
-  componentDidMount() {
-    const parseContacts = JSON.parse(localStorage.getItem('contacts'));
+    const { query, page } = this.state;
 
-    if (parseContacts) {
-      this.setState({ contacts: parseContacts });
+    const prevName = prevState.query;
+    const nextName = query;
+
+    if (prevName !== nextName) {
+      this.setState({ isLoading: true });
+
+      fetchImages(query)
+        .then(({ hits, totalHits }) => {
+          const imagesArray = hits.map(hit => ({
+            id: hit.id,
+            description: hit.tags,
+            smallImage: hit.webformatURL,
+            largeImage: hit.largeImageURL,
+          }));
+
+          if (hits.length > 0) {
+            toast.success(`Hooray! We found ${hits.length} images.`, {
+              position: 'top-right',
+              autoClose: 800,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'colored',
+            });
+          }
+
+          return this.setState({
+            page: 1,
+            images: imagesArray,
+            imagesOnPage: imagesArray.length,
+            totalImages: totalHits,
+          });
+        })
+        .catch(error => this.setState({ error }))
+        .finally(() => this.setState({ isLoading: true }));
+    }
+
+    if (prevState.page !== page && page !== 1) {
+      this.setState({ isLoading: true });
+
+      fetchImages(query, page)
+        .then(({ hits }) => {
+          const imagesArray = hits.map(hit => ({
+            id: hit.id,
+            description: hit.tags,
+            smallImage: hit.webformatURL,
+            largeImage: hit.largeImageURL,
+          }));
+
+          return this.setState(({ images, imagesOnPage }) => {
+            return {
+              images: [...images, ...imagesArray],
+              imagesOnPage: imagesOnPage + imagesArray.length,
+            };
+          });
+        })
+        .catch(error => this.setState({ error }))
+        .finally(() => this.setState({ isLoading: true }));
     }
   }
+
+  handleSearchFormSubmit = query => {
+    this.setState({ query });
+  };
+
+  onNextFetch = () => {
+    this.setState(({ page }) => ({ page: page + 1 }));
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  };
+
+  openModal = e => {
+    const currentImageUrl = e.target.dataset.large;
+    const currentImageDescription = e.target.alt;
+
+    if (e.target.nodeName === 'IMG') {
+      this.setState(({ showModal }) => ({
+        showModal: !showModal,
+        currentImageUrl: currentImageUrl,
+        currentImageDescription: currentImageDescription,
+      }));
+    }
+  };
 
   render() {
-    const { contacts, filter } = this.state;
+    const {
+      images,
+      isLoading,
+      error,
+      imagesOnPage,
+      totalImages,
+      showModal,
+      currentImageUrl,
+      currentImageDescription,
+    } = this.state;
+
+    const handleSearchFormSubmit = this.handleSearchFormSubmit;
+    const onNextFetch = this.onNextFetch;
+    const openModal = this.openModal;
+    const toggleModal = this.toggleModal;
+
     return (
       <Container>
-        <Box>
-          <SectionTitle title="Phonebook" />
-          <ContactForm onSubmit={this.addContact} />
-        </Box>
-        <Box>
-          <SectionTitle title="Contacts" />
-          <Filter value={filter} onChange={this.changeFilter} />
-          {contacts.length > 0 ? (
-            <ContactList
-              contacts={this.filterContacts()}
-              ondDeleteContact={this.deleteContact}
-            />
-          ) : (
-            <Message text="Your phonebook is empty. Please add contact." />
+        <Box pb={20}>
+          <Searchbar onSubmit={handleSearchFormSubmit} />
+
+          {images && <ImageGallery images={images} openModal={openModal} />}
+
+          {error && console.log(error.message)}
+
+          <Box display="flex" justifyContent="center">
+            {isLoading && (
+              <FallingLines
+                color="#4fa94d"
+                width="100"
+                visible={true}
+                ariaLabel="falling-lines-loading"
+              />
+            )}
+          </Box>
+
+          {imagesOnPage >= 12 && imagesOnPage < totalImages && (
+            <Button onNextFetch={onNextFetch} />
           )}
+
+          {/* {showModal && (
+            <Modal
+              onClose={toggleModal}
+              currentImageUrl={currentImageUrl}
+              currentImageDescription={currentImageDescription}
+            />
+          )} */}
+
+          <ToastContainer />
         </Box>
       </Container>
     );
