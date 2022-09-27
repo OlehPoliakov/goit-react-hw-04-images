@@ -1,0 +1,24 @@
+.IconButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0;
+  border: none;
+  outline: 1px solid transparent;
+
+  background-color: transparent;
+
+  cursor: pointer;
+
+  & svg {
+    transition: fill 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  & svg:hover,
+  & svg:focus {
+    fill: brown;
+    transform: scale(1.2);
+    transition: fill 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

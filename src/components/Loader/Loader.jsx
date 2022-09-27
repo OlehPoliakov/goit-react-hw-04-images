@@ -1,10 +1,16 @@
-import { MdOutlineCameraswitch } from 'react-icons/md';
-import s from './Loader.module.css';
+import { FallingLines } from 'react-loader-spinner';
 
-export default function Loader() {
-  return (
-    <div className={s.wrapper}>
-      <MdOutlineCameraswitch className={s.loader} />
-    </div>
-  );
-}
+import styles from './Loader.module.scss';
+
+const Loader = () => (
+  <div className={styles.Loader}>
+    <FallingLines
+      color="#4fa94d"
+      width="100"
+      visible={true}
+      ariaLabel="falling-lines-loading"
+    />
+  </div>
+);
+
+export default Loader;

@@ -1,17 +1,16 @@
 import PropTypes from 'prop-types';
-import { BiPlusMedical } from 'react-icons/bi';
-import s from './Button.module.css';
+import styles from './Button.module.scss';
 
-function Button({ onNextFetch }) {
-  return (
-    <button className={s.button} type="button" onClick={onNextFetch}>
-      Load more <BiPlusMedical className={s.icon} />
+const Button = ({ onClick }) => (
+  <div className={styles['Button-wrapper']}>
+    <button type="button" className={styles.Button} onClick={onClick}>
+      Load more
     </button>
-  );
-}
+  </div>
+);
 
-Button.prototype = {
-  onNextFetch: PropTypes.func.isRequired,
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
 };
 
 export default Button;

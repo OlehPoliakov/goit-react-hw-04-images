@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from 'styled-components';
-import App from './components/App';
+import App from './App.jsx';
 import { theme } from './constants/theme';
-import './index.css';
+
+import 'modern-normalize/modern-normalize.css';
+import './App.module.scss';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
