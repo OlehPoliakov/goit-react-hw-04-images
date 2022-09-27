@@ -39,30 +39,57 @@
 
 .SearchForm-button {
   display: inline-flex;
+  justify-content: center;
   align-items: center;
-  width: 100px;
   height: 32px;
   font-size: 18px;
   font-weight: bold;
   border: none;
-  background-color: transparent;
+  border-radius: 4px;
   opacity: 0.9;
   transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
   transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   outline: none;
+  background: linear-gradient(
+    0deg,
+    rgb(251, 33, 33) 0%,
+    rgba(0, 0, 0, 0.663) 100%
+  );
+  color: #fff;
+  overflow: hidden;
 
   &:hover,
   &:focus {
     opacity: 1;
     transform: scale(1.2);
+    color: #f0094a;
+    background: transparent;
+    box-shadow: none;
   }
-}
-
-.SearchForm-button-label {
-  width: 20px;
-  height: 20px;
-  fill: #34a6e8;
-  opacity: 0.9;
-  margin-left: 4px;
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 2px;
+    width: 0;
+    background: #f0094a;
+    box-shadow: -1px -1px 5px 0px #fff, 7px 7px 20px 0px #0003,
+      4px 4px 5px 0px #0002;
+    transition: 400ms ease all;
+    animation: shiny-btn1 3s ease-in-out infinite;
+  }
+  &:after {
+    right: inherit;
+    top: inherit;
+    left: 0;
+    bottom: 0;
+  }
+  &:hover:after,
+  &:hover:before {
+    width: 100%;
+    transition: 800ms ease all;
+  }
 }

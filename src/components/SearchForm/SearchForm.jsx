@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
-import { ReactComponent as SearchButton } from '../../assets/icons/search.svg';
 import styles from './SearchForm.module.scss';
 
 const SearchFrom = ({ onSearch }) => {
@@ -53,10 +52,8 @@ const SearchFrom = ({ onSearch }) => {
         autoFocus
         placeholder="Search images and photos"
       />
-
       <button type="submit" className={styles['SearchForm-button']}>
         Search
-        <SearchButton className={styles['SearchForm-button-label']} />
       </button>
     </form>
   );
