@@ -1,5 +1,6 @@
 import { Component } from 'react';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from '../Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import Loader from '../Loader/Loader';
@@ -55,6 +56,31 @@ class Aplication extends Component {
         currentPage: prevState.currentPage + 1,
       }));
 
+      if (hits.length) {
+        toast.success(`Hooray! We found ${hits.length} images.`, {
+          position: 'top-right',
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      } else {
+        toast.info(
+          `Sorry, there are no ${searchQuery} images matching your search query. Please try again.`,
+          {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          }
+        );
+      }
+
       if (currentPage !== 1) {
         this.scrollOnLoadButton();
       }
@@ -94,12 +120,9 @@ class Aplication extends Component {
 
   render() {
     const { images, isLoading, showModal, largeImage, error } = this.state;
-    const needToShowLoadMore = images.length > 0 && images.length >= 12; // Нужны доп проверки;
-
     return (
       <>
         <Searchbar onSearch={this.onChangeQuery} />
-
         {images.length < 1 && (
           <Message>
             <h2>The gallery is empty 🙁</h2>
@@ -107,10 +130,8 @@ class Aplication extends Component {
           </Message>
         )}
 
+        {isLoading && <Loader />}
         <ImageGallery images={images} onImageClick={this.handleGalleryItem} />
-
-        {needToShowLoadMore && <Button onClick={this.getImages} />}
-
         {showModal && (
           <Modal onClose={this.toggleModal}>
             <div className="Close-box">
@@ -122,18 +143,27 @@ class Aplication extends Component {
             <img src={largeImage} alt="" className="Modal-image" />
           </Modal>
         )}
-
-        {isLoading && <Loader />}
-
+        {images.length > 0 && <Button onClick={this.getImages} />}
         {error && (
           <Message>
             <h2>Oops! 😫</h2>
             <p>
-              Sorry, something went wrong. Please try again, or{' '}
+              Sorry, something went wrong. Please try again, or
               <a href="/">refresh the page</a>.
             </p>
           </Message>
         )}
+        <ToastContainer
+          position="top-right"
+          autoClose={1500}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </>
     );
   }

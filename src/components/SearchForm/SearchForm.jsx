@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 import { ReactComponent as SearchButton } from '../../assets/icons/search.svg';
 import styles from './SearchForm.module.scss';
 
@@ -18,7 +19,18 @@ const SearchFrom = ({ onSearch }) => {
     e.preventDefault();
 
     // Запрещает отправку пустого инпута
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      toast.error('Enter a search term.', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
 
     // Отдать данные внешнему компоненту
     onSearch(query);
