@@ -6,11 +6,11 @@ import Aplication from './components/Aplication/Aplication';
 export default class App extends React.Component {
   render() {
     return (
-      <>
+      <Box>
         <ErrorBoundary>
           <Aplication />
         </ErrorBoundary>
-      </>
+      </Box>
     );
   }
 }
