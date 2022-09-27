@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/goit-react-hw-03-phonebook/static/css/main.ba5b35cc.css",
-    "main.js": "/goit-react-hw-03-phonebook/static/js/main.eb717315.js",
-    "static/media/bg.jpg": "/goit-react-hw-03-phonebook/static/media/bg.464395f35d77ad485484.jpg",
-    "static/media/contact.svg": "/goit-react-hw-03-phonebook/static/media/contact.85474d5a993ee43f763f9cba80d10dae.svg",
-    "index.html": "/goit-react-hw-03-phonebook/index.html",
-    "static/media/delete.svg": "/goit-react-hw-03-phonebook/static/media/delete.30a884535d51e49655acba31f2e36049.svg",
-    "main.ba5b35cc.css.map": "/goit-react-hw-03-phonebook/static/css/main.ba5b35cc.css.map",
-    "main.eb717315.js.map": "/goit-react-hw-03-phonebook/static/js/main.eb717315.js.map"
+    "main.css": "/goit-react-hw-03-image-finder/static/css/main.fddababe.css",
+    "main.js": "/goit-react-hw-03-image-finder/static/js/main.83ab97a8.js",
+    "index.html": "/goit-react-hw-03-image-finder/index.html",
+    "static/media/search.svg": "/goit-react-hw-03-image-finder/static/media/search.750f6c864369accb88be783ad960a83b.svg",
+    "static/media/close.svg": "/goit-react-hw-03-image-finder/static/media/close.d02651e3982f2dd201bc4a359718bccd.svg",
+    "main.fddababe.css.map": "/goit-react-hw-03-image-finder/static/css/main.fddababe.css.map",
+    "main.83ab97a8.js.map": "/goit-react-hw-03-image-finder/static/js/main.83ab97a8.js.map"
   },
   "entrypoints": [
-    "static/css/main.ba5b35cc.css",
-    "static/js/main.eb717315.js"
+    "static/css/main.fddababe.css",
+    "static/js/main.83ab97a8.js"
   ]
 }
