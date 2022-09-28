@@ -1,4 +1,4 @@
-## Image search
+## Image search (React hooks)
 
 Write an application to search for images by keyword. Create Components
 <Searchbar>, <ImageGallery>, <ImageGalleryItem>, <Loader>, <Button> and <Modal>.
