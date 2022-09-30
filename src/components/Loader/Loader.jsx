@@ -1,14 +1,17 @@
-import { FallingLines } from 'react-loader-spinner';
+import { ColorRing } from 'react-loader-spinner';
 
 import styles from './Loader.module.scss';
 
 const Loader = () => (
   <div className={styles.Loader}>
-    <FallingLines
-      color="#4fa94d"
-      width="100"
+    <ColorRing
       visible={true}
-      ariaLabel="falling-lines-loading"
+      height="80"
+      width="80"
+      ariaLabel="blocks-loading"
+      wrapperStyle={{}}
+      wrapperClass="blocks-wrapper"
+      colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
     />
   </div>
 );

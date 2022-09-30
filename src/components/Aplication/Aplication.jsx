@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from '../Searchbar/Searchbar';
@@ -12,49 +12,28 @@ import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
 
 import fetchImages from '../../api/api-services';
 
-class Aplication extends Component {
-  state = {
-    images: [],
-    currentPage: 1,
-    searchQuery: '',
-    isLoading: false,
-    showModal: false,
-    largeImage: '',
-    error: null,
-  };
+// Компонент
+export default function Aplication() {
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [largeImage, setLargeImage] = useState('');
+  const [error, setError] = useState(null);
 
-  // Если при обновлении запрос не равен между стейтами, тогда делаем фетч
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.getImages();
-    }
-  }
-
-  // Принимаем с формы запрос и пишем в стейт + сбрасываем после отправки ключи из стейта
-  onChangeQuery = query => {
-    this.setState({
-      images: [],
-      currentPage: 1,
-      searchQuery: query,
-      error: null,
-    });
-  };
-
-  // Получаем дату из фетча
-  getImages = async () => {
-    const { currentPage, searchQuery } = this.state;
-
-    this.setState({
-      isLoading: true,
-    });
+  // Получает данные из фетча
+  const getImages = async () => {
+    setIsLoading(true);
 
     try {
-      const { hits } = await fetchImages(searchQuery, currentPage);
+      const { hits } = await fetchImages(searchQuery, page);
 
-      this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        currentPage: prevState.currentPage + 1,
-      }));
+      setImages(prev => [...prev, ...hits]);
+
+      if (page > 1) {
+        scrollOnLoadButton();
+      }
 
       if (hits.length) {
         toast.success(`Hooray! We found ${hits.length} images.`, {
@@ -80,93 +59,118 @@ class Aplication extends Component {
           }
         );
       }
-
-      if (currentPage !== 1) {
-        this.scrollOnLoadButton();
-      }
     } catch (error) {
       console.log('Smth wrong with App fetch', error);
-      this.setState({ error });
+      setError({ error });
     } finally {
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
     }
   };
 
+  // Запрос за картинками при обновлении инпута
+  useEffect(() => {
+    if (!searchQuery) return;
+
+    getImages();
+    // eslint-disable-next-line
+  }, [searchQuery, page]);
+
+  // Принимает с формы запрос и пишет в стейт + сбрасывает после отправки стейт
+  const onChangeQuery = useCallback(
+    query => {
+      if (query === searchQuery) {
+        return;
+      }
+      setImages([]);
+      setPage(1);
+      setSearchQuery(query);
+      setIsLoading(false);
+      setModal(false);
+      setLargeImage('');
+      setError(null);
+    },
+    [searchQuery]
+  );
+
   // Получает полное изображение, пишет его в стейт и открывает модалку
-  handleGalleryItem = fullImageUrl => {
-    this.setState({
-      largeImage: fullImageUrl,
-      showModal: true,
-    });
-  };
+  const handleGalleryItem = useCallback(fullImageUrl => {
+    setLargeImage(fullImageUrl);
+    setModal(true);
+  }, []);
 
   // Переключение модалки
-  toggleModal = () => {
-    this.setState(prevState => ({
-      showModal: !prevState.showModal,
-      largeImage: '',
-    }));
-  };
+  const toggleModal = useCallback(() => {
+    setModal(prevModal => !prevModal);
+  }, []);
 
   // Скролл при клике на кнопку
-  scrollOnLoadButton = () => {
+  const scrollOnLoadButton = () => {
+    const { scrollTop, clientHeight } = document.documentElement;
+
     window.scrollTo({
-      top: document.documentElement.scrollHeight,
+      top: scrollTop + clientHeight,
       behavior: 'smooth',
     });
   };
 
-  render() {
-    const { images, isLoading, showModal, largeImage, error } = this.state;
-    return (
-      <>
-        <Searchbar onSearch={this.onChangeQuery} />
-        {images.length < 1 && (
-          <Message>
-            <h2>The gallery is empty 🙁</h2>
-            <p>Use search field!</p>
-          </Message>
-        )}
+  const needToShowLoadMore = images.length > 0 && images.length >= 12;
 
-        {isLoading && <Loader />}
-        <ImageGallery images={images} onImageClick={this.handleGalleryItem} />
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <div className="Close-box">
-              <IconButton onClick={this.toggleModal} aria-label="Close modal">
-                <CloseIcon width="20px" height="20px" fill="#7e7b7b" />
-              </IconButton>
-            </div>
+  return (
+    <>
+      <Searchbar onSearch={onChangeQuery} />
 
-            <img src={largeImage} alt="" className="Modal-image" />
-          </Modal>
-        )}
-        {images.length > 0 && <Button onClick={this.getImages} />}
-        {error && (
-          <Message>
-            <h2>Oops! 😫</h2>
-            <p>
-              Sorry, something went wrong. Please try again, or
-              <a href="/">refresh the page</a>.
-            </p>
-          </Message>
-        )}
-        <ToastContainer
-          position="top-right"
-          autoClose={1500}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-      </>
-    );
-  }
+      {images.length < 1 && (
+        <Message>
+          <h2>The gallery is empty 🙁</h2>
+          <p>Use search field!</p>
+        </Message>
+      )}
+
+      <ImageGallery images={images} onImageClick={handleGalleryItem} />
+
+      {isLoading ? (
+        <Loader />
+      ) : (
+        needToShowLoadMore && (
+          <Button
+            onClick={() => {
+              setPage(page + 1);
+            }}
+          />
+        )
+      )}
+
+      {error && (
+        <Message>
+          <h2>Oops! 😫</h2>
+          <p>
+            Sorry, something went wrong. Please try again, or{' '}
+            <a href="/">refresh the page</a>.
+          </p>
+        </Message>
+      )}
+
+      {modal && (
+        <Modal onClose={toggleModal}>
+          <div className="Close-box">
+            <IconButton onClick={toggleModal} aria-label="Close modal window">
+              <CloseIcon width="20px" height="20px" fill="#02be6e" />
+            </IconButton>
+          </div>
+          <img src={largeImage} alt="" className="Modal-image" />
+        </Modal>
+      )}
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
+  );
 }
-
-export default Aplication;
